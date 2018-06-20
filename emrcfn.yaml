@@ -1,3 +1,9 @@
+# TODO:
+#    o) application provisioning fails on current emr version (5.14.0)
+#    o) autoscaling policy doesn't stabilize in time for create to complete
+#    o) Hive can't access glue catalog as metastore
+#    o) does Hive successfully load jars from s3?
+
 AWSTemplateFormatVersion: 2010-09-09
 Description: "Create an EMR cluster with optionally spot task instances"
 
