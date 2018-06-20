@@ -129,7 +129,7 @@ Resources:
         Type: AWS::EMR::Cluster
         Properties:
             Name: !Ref "AWS::StackName"
-            ReleaseLabel: emr-5.14.0
+            ReleaseLabel: emr-5.1.0
             VisibleToAllUsers: true
             
             LogUri: !Sub
