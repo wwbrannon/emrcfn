@@ -1,0 +1,185 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "Create an EMR cluster on spot instances"
+
+Parameters:
+    Subnet:
+        Type: AWS::EC2::Subnet::Id
+        Default: subnet-2e4f0975
+
+    KeyPair:
+        Type: AWS::EC2::KeyPair::KeyName
+        Default: wwbrannon
+
+    CoreSize:
+        Type: String
+        Default: 5
+
+    InstanceType:
+        Type: String
+        Default: m4.large
+
+    SpotPrice:
+        Type: Number
+        Default: 0.1 # or 0 for on-demand
+
+    CoreStorage:
+        Type: Number
+        Default: 20
+
+Conditions:
+    WithSpotPrice:
+        !Not [!Equals [0, !Ref SpotPrice]]
+
+Resources:
+    ServiceRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Effect: Allow
+                      Action: sts:AssumeRole
+                      Principal:
+                          Service:
+                              - elasticmapreduce.amazonaws.com
+            ManagedPolicyArns:
+                - arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole
+    
+    JobFlowRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Effect: Allow
+                      Action: sts:AssumeRole
+                      Principal:
+                          Service:
+                              - elasticmapreduce.amazonaws.com
+            ManagedPolicyArns:
+                - arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role
+    
+    AutoscalingRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Effect: Allow
+                      Action: sts:AssumeRole
+                      Principal:
+                          Service:
+                              - elasticmapreduce.amazonaws.com
+            ManagedPolicyArns:
+                - arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforAutoScalingRole
+    
+    InstanceProfile:
+        Type: AWS::IAM::InstanceProfile
+        Properties:
+            Roles:
+                - !Ref JobFlowRole
+    
+    Cluster:
+        Type: AWS::EMR::Cluster
+        Properties:
+            Name: !Ref "AWS::StackName"
+            ReleaseLabel: emr-5.14.0
+            VisibleToAllUsers: true
+            
+            Applications:
+                - Name: Hadoop
+                - Name: Hive
+                - Name: Hue
+
+            AutoScalingRole: !Ref AutoscalingRole
+            JobFlowRole: !Ref InstanceProfile
+            ServiceRole: !Ref ServiceRole
+            
+            Configurations:
+                - Classification: hive-site
+                  ConfigurationProperties:
+                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
+                      hive.aux.jars.path: "s3://cortico-public/jar/"
+
+            Instances:
+                MasterInstanceGroup:
+                    InstanceCount: 1
+                    InstanceType: !Ref InstanceType
+                    Market: ON_DEMAND
+                    Name: Master Instance
+                    
+                    #AutoScalingPolicy:
+                    #    Constraints:
+                    #        MaxCapacity: 3
+                    #        MinCapacity: 1
+                    #    Rules:
+                    #        - Name: MasterAutoScalingPolicy
+                    #          Action:
+                    #            Market: ON_DEMAND
+                    #            SimpleScalingPolicyConfiguration:
+                    #                AdjustmentType: EXACT_CAPACITY
+                    #                CoolDown: 300
+                    #                ScalingAdjustment: 1
+                    #          Trigger:
+                    #              CloudWatchAlarmDefinition:
+                    #                  ComparisonOperator: GREATER_THAN
+                    #                  Dimensions:
+                    #                      - Key: JobFlowId
+                    #                        Value: "${emr.clusterId}"
+                    #                  EvaluationPeriods: 120
+                    #                  MetricName: MasterAutoscaleMetric
+                    #                  Namespace: AWS/ElasticMapReduce
+                    #                  Period: 300
+                    #                  Statistic: AVERAGE
+                    #                  Threshold: 50
+                    #                  Unit: PERCENT
+                CoreInstanceGroup:
+                    InstanceCount: !Ref CoreSize
+                    InstanceType: !Ref InstanceType
+                    Market: !If [WithSpotPrice, SPOT, ON_DEMAND]
+                    BidPrice:
+                        Fn::If:
+                            - WithSpotPrice
+                            - Ref: SpotPrice
+                            - Ref: AWS::NoValue
+                    Name: CoreInstance
+
+                    EbsConfiguration:
+                        EbsBlockDeviceConfigs:
+                            - VolumeSpecification:
+                                  SizeInGB: !Ref CoreStorage
+                                  VolumeType: gp2
+                              VolumesPerInstance: 1
+                        EbsOptimized: true
+
+                    #AutoScalingPolicy:
+                    #    Constraints:
+                    #        MaxCapacity: !Ref CoreSize
+                    #        MinCapacity: 1
+                    #    Rules:
+                    #        - Name: CoreAutoScalingPolicy
+                    #          Action:
+                    #            Market: !If [WithSpotPrice, SPOT, ON_DEMAND]
+                    #            SimpleScalingPolicyConfiguration:
+                    #                AdjustmentType: CHANGE_IN_CAPACITY
+                    #                CoolDown: 300
+                    #                ScalingAdjustment: 1
+                    #          Trigger:
+                    #              CloudWatchAlarmDefinition:
+                    #                  ComparisonOperator: GREATER_THAN
+                    #                  Dimensions:
+                    #                      - Key: JobFlowId
+                    #                        Value: "${emr.clusterId}"
+                    #                  EvaluationPeriods: 300
+                    #                  MetricName: CoreAutoscaleMetric
+                    #                  Namespace: AWS/ElasticMapReduce
+                    #                  Period: 300
+                    #                  Statistic: AVERAGE
+                    #                  Threshold: 50
+                    #                  Unit: PERCENT
+                TerminationProtected: false
+                Ec2KeyName: !Ref KeyPair
+                Ec2SubnetId: !Ref Subnet
+
+Outputs:
+    Cluster:
+        Description: EMR Cluster DNS
+        Value: !GetAtt Cluster.MasterPublicDNS
+
