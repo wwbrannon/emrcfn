@@ -48,7 +48,7 @@ Parameters:
     ## Misc parameters
     CoreStorage:
         Type: Number
-        Default: 50
+        Default: 100
 
     SpotPrice:
         Type: Number
@@ -72,7 +72,7 @@ Resources:
                 - IpProtocol: tcp
                   FromPort: 22
                   ToPort: 22
-                  CidrIp: "0.0.0.0/0"
+                  CidrIp: 0.0.0.0/0
 
     ServiceRole:
         Type: AWS::IAM::Role
@@ -196,27 +196,6 @@ Resources:
                                       Dimensions:
                                           - Key: JobFlowId
                                             Value: "${emr.clusterId}"
-                            
-                            - Name: CoreNodeScaleIn
-                              Description: "Core node scale-in based on HDFS utilization"
-                              Action:
-                                  SimpleScalingPolicyConfiguration:
-                                      AdjustmentType: CHANGE_IN_CAPACITY
-                                      ScalingAdjustment: -1
-                                      CoolDown: 300
-                              Trigger:
-                                  CloudWatchAlarmDefinition:
-                                      ComparisonOperator: LESS_THAN
-                                      EvaluationPeriods: 1
-                                      MetricName: HDFSUtilization
-                                      Namespace: AWS/ElasticMapReduce
-                                      Period: 300
-                                      Threshold: 50
-                                      Statistic: AVERAGE
-                                      Unit: PERCENT
-                                      Dimensions:
-                                          - Key: JobFlowId
-                                            Value: "${emr.clusterId}"
 
     TaskInstanceGroupConfig:
         Type: AWS::EMR::InstanceGroupConfig
@@ -241,7 +220,7 @@ Resources:
                     MaxCapacity: !Ref MaxTaskSize
                 Rules:
                     - Name: TaskNodeScaleOut
-                      Description: "Task node scale-out based on HDFS utilization"
+                      Description: "Task node scale-out based on memory utilization"
                       Action:
                           SimpleScalingPolicyConfiguration:
                               AdjustmentType: CHANGE_IN_CAPACITY
@@ -262,7 +241,7 @@ Resources:
                                     Value: "${emr.clusterId}"
                     
                     - Name: TaskNodeScaleIn
-                      Description: "Task node scale-in based on HDFS utilization"
+                      Description: "Task node scale-in based on memory utilization"
                       Action:
                           SimpleScalingPolicyConfiguration:
                               AdjustmentType: CHANGE_IN_CAPACITY
