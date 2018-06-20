@@ -31,7 +31,7 @@ Parameters:
     ## Instance counts and bounds
     InitialCoreSize:
         Type: Number
-        Default: 2
+        Default: 1
 
     MaxCoreSize:
         Type: Number
@@ -39,7 +39,7 @@ Parameters:
 
     InitialTaskSize:
         Type: Number
-        Default: 3
+        Default: 1
 
     MaxTaskSize:
         Type: Number
@@ -63,6 +63,12 @@ Conditions:
         !Not [!Equals [0, !Ref SpotPrice]]
 
 Resources:
+    LogBucket:
+        Type: AWS::S3::Bucket
+        DeletionPolicy: Retain
+        Properties:
+            AccessControl: private
+
     SecurityGroup:
         Type: AWS::EC2::SecurityGroup
         Properties:
@@ -123,11 +129,16 @@ Resources:
         Type: AWS::EMR::Cluster
         Properties:
             Name: !Ref "AWS::StackName"
-            ReleaseLabel: emr-5.1.0
+            ReleaseLabel: emr-5.14.0
             VisibleToAllUsers: true
             
+            LogUri: !Sub
+                - "s3://${bucket}/emr-logs/"
+                - { bucket: !Ref LogBucket }
+
             Applications:
                 - Name: Hadoop
+                - Name: Ganglia
                 - Name: Hive
                 - Name: Spark
                 - Name: Pig
@@ -142,6 +153,13 @@ Resources:
                   ConfigurationProperties:
                       hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
                       hive.aux.jars.path: !Ref ExtraJarsLocation
+                - Classification: yarn-site
+                  ConfigurationProperties:
+                      yarn.log-aggregation-enable: true
+                      yarn.log-aggregation.retain-seconds: -1
+                      yarn.nodemanager.remote-app-log-dir: !Sub
+                          - "s3://${bucket}/aggregated-logs/"
+                          - { bucket: !Ref LogBucket }
 
             Instances:
                 TerminationProtected: false
@@ -213,6 +231,13 @@ Resources:
                   ConfigurationProperties:
                       hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
                       hive.aux.jars.path: !Ref ExtraJarsLocation
+                - Classification: yarn-site
+                  ConfigurationProperties:
+                      yarn.log-aggregation-enable: true
+                      yarn.log-aggregation.retain-seconds: -1
+                      yarn.nodemanager.remote-app-log-dir: !Sub
+                          - "s3://${bucket}/aggregated-logs/"
+                          - { bucket: !Ref LogBucket }
 
             AutoScalingPolicy:
                 Constraints:
@@ -260,7 +285,18 @@ Resources:
                               Dimensions:
                                   - Key: JobFlowId
                                     Value: "${emr.clusterId}"
-        
+
+    DebugSetupStep:
+        Type: AWS::EMR::Step
+        Properties:
+            Name: SetupDebuggingTool
+            ActionOnFailure: TERMINATE_CLUSTER
+            JobFlowId: !Ref Cluster
+            HadoopJarStep:
+                Jar: "command-runner.jar"
+                Args:
+                    - 'state-pusher-script'
+
 Outputs:
     Cluster:
         Description: EMR Cluster DNS
