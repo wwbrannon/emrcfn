@@ -1,7 +1,12 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "Create an EMR cluster on spot instances"
+Description: "Create an EMR cluster with optionally spot task instances"
 
 Parameters:
+    ## Networking and access
+    VPC:
+        Type: AWS::EC2::VPC::Id
+        Default: vpc-7f009219
+
     Subnet:
         Type: AWS::EC2::Subnet::Id
         Default: subnet-2e4f0975
@@ -10,27 +15,65 @@ Parameters:
         Type: AWS::EC2::KeyPair::KeyName
         Default: wwbrannon
 
-    CoreSize:
-        Type: String
-        Default: 5
-
-    InstanceType:
+    ## Instance types
+    MasterInstanceType:
         Type: String
         Default: m4.large
+
+    CoreInstanceType:
+        Type: String
+        Default: m4.large
+
+    TaskInstanceType:
+        Type: String
+        Default: m4.large
+
+    ## Instance counts and bounds
+    InitialCoreSize:
+        Type: Number
+        Default: 2
+
+    MaxCoreSize:
+        Type: Number
+        Default: 10
+
+    InitialTaskSize:
+        Type: Number
+        Default: 3
+
+    MaxTaskSize:
+        Type: Number
+        Default: 10
+    
+    ## Misc parameters
+    CoreStorage:
+        Type: Number
+        Default: 50
 
     SpotPrice:
         Type: Number
         Default: 0.1 # or 0 for on-demand
 
-    CoreStorage:
-        Type: Number
-        Default: 20
+    ExtraJarsLocation:
+        Type: String
+        Default: s3://cortico-public/hadoop-jar/
 
 Conditions:
     WithSpotPrice:
         !Not [!Equals [0, !Ref SpotPrice]]
 
 Resources:
+    SecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: "Allow SSH from anywhere"
+            VpcId: !Ref VPC
+            SecurityGroupIngress:
+                - IpProtocol: tcp
+                  FromPort: 22
+                  ToPort: 22
+                  CidrIp: "0.0.0.0/0"
+
     ServiceRole:
         Type: AWS::IAM::Role
         Properties:
@@ -80,12 +123,14 @@ Resources:
         Type: AWS::EMR::Cluster
         Properties:
             Name: !Ref "AWS::StackName"
-            ReleaseLabel: emr-5.14.0
+            ReleaseLabel: emr-5.1.0
             VisibleToAllUsers: true
             
             Applications:
                 - Name: Hadoop
                 - Name: Hive
+                - Name: Spark
+                - Name: Pig
                 - Name: Hue
 
             AutoScalingRole: !Ref AutoscalingRole
@@ -96,51 +141,27 @@ Resources:
                 - Classification: hive-site
                   ConfigurationProperties:
                       hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
-                      hive.aux.jars.path: "s3://cortico-public/jar/"
+                      hive.aux.jars.path: !Ref ExtraJarsLocation
 
             Instances:
+                TerminationProtected: false
+                Ec2KeyName: !Ref KeyPair
+                Ec2SubnetId: !Ref Subnet
+                AdditionalMasterSecurityGroups:
+                    - !Ref SecurityGroup
+                
                 MasterInstanceGroup:
                     InstanceCount: 1
-                    InstanceType: !Ref InstanceType
+                    InstanceType: !Ref MasterInstanceType
                     Market: ON_DEMAND
-                    Name: Master Instance
-                    
-                    #AutoScalingPolicy:
-                    #    Constraints:
-                    #        MaxCapacity: 3
-                    #        MinCapacity: 1
-                    #    Rules:
-                    #        - Name: MasterAutoScalingPolicy
-                    #          Action:
-                    #            Market: ON_DEMAND
-                    #            SimpleScalingPolicyConfiguration:
-                    #                AdjustmentType: EXACT_CAPACITY
-                    #                CoolDown: 300
-                    #                ScalingAdjustment: 1
-                    #          Trigger:
-                    #              CloudWatchAlarmDefinition:
-                    #                  ComparisonOperator: GREATER_THAN
-                    #                  Dimensions:
-                    #                      - Key: JobFlowId
-                    #                        Value: "${emr.clusterId}"
-                    #                  EvaluationPeriods: 120
-                    #                  MetricName: MasterAutoscaleMetric
-                    #                  Namespace: AWS/ElasticMapReduce
-                    #                  Period: 300
-                    #                  Statistic: AVERAGE
-                    #                  Threshold: 50
-                    #                  Unit: PERCENT
-                CoreInstanceGroup:
-                    InstanceCount: !Ref CoreSize
-                    InstanceType: !Ref InstanceType
-                    Market: !If [WithSpotPrice, SPOT, ON_DEMAND]
-                    BidPrice:
-                        Fn::If:
-                            - WithSpotPrice
-                            - Ref: SpotPrice
-                            - Ref: AWS::NoValue
-                    Name: CoreInstance
+                    Name: MasterInstance
 
+                CoreInstanceGroup:
+                    InstanceCount: !Ref InitialCoreSize
+                    InstanceType: !Ref CoreInstanceType
+                    Market: ON_DEMAND
+                    Name: CoreInstance
+                    
                     EbsConfiguration:
                         EbsBlockDeviceConfigs:
                             - VolumeSpecification:
@@ -149,35 +170,118 @@ Resources:
                               VolumesPerInstance: 1
                         EbsOptimized: true
 
-                    #AutoScalingPolicy:
-                    #    Constraints:
-                    #        MaxCapacity: !Ref CoreSize
-                    #        MinCapacity: 1
-                    #    Rules:
-                    #        - Name: CoreAutoScalingPolicy
-                    #          Action:
-                    #            Market: !If [WithSpotPrice, SPOT, ON_DEMAND]
-                    #            SimpleScalingPolicyConfiguration:
-                    #                AdjustmentType: CHANGE_IN_CAPACITY
-                    #                CoolDown: 300
-                    #                ScalingAdjustment: 1
-                    #          Trigger:
-                    #              CloudWatchAlarmDefinition:
-                    #                  ComparisonOperator: GREATER_THAN
-                    #                  Dimensions:
-                    #                      - Key: JobFlowId
-                    #                        Value: "${emr.clusterId}"
-                    #                  EvaluationPeriods: 300
-                    #                  MetricName: CoreAutoscaleMetric
-                    #                  Namespace: AWS/ElasticMapReduce
-                    #                  Period: 300
-                    #                  Statistic: AVERAGE
-                    #                  Threshold: 50
-                    #                  Unit: PERCENT
-                TerminationProtected: false
-                Ec2KeyName: !Ref KeyPair
-                Ec2SubnetId: !Ref Subnet
+                    AutoScalingPolicy:
+                        Constraints:
+                            MinCapacity: 1
+                            MaxCapacity: !Ref MaxCoreSize
+                        
+                        Rules:
+                            - Name: CoreNodeScaleOut
+                              Description: "Core node scale-out based on HDFS utilization"
+                              Action:
+                                  SimpleScalingPolicyConfiguration:
+                                      AdjustmentType: CHANGE_IN_CAPACITY
+                                      ScalingAdjustment: 1
+                                      CoolDown: 300
+                              Trigger:
+                                  CloudWatchAlarmDefinition:
+                                      ComparisonOperator: GREATER_THAN
+                                      EvaluationPeriods: 1
+                                      MetricName: HDFSUtilization
+                                      Namespace: AWS/ElasticMapReduce
+                                      Period: 300
+                                      Threshold: 80
+                                      Statistic: AVERAGE
+                                      Unit: PERCENT
+                                      Dimensions:
+                                          - Key: JobFlowId
+                                            Value: "${emr.clusterId}"
+                            
+                            - Name: CoreNodeScaleIn
+                              Description: "Core node scale-in based on HDFS utilization"
+                              Action:
+                                  SimpleScalingPolicyConfiguration:
+                                      AdjustmentType: CHANGE_IN_CAPACITY
+                                      ScalingAdjustment: -1
+                                      CoolDown: 300
+                              Trigger:
+                                  CloudWatchAlarmDefinition:
+                                      ComparisonOperator: LESS_THAN
+                                      EvaluationPeriods: 1
+                                      MetricName: HDFSUtilization
+                                      Namespace: AWS/ElasticMapReduce
+                                      Period: 300
+                                      Threshold: 50
+                                      Statistic: AVERAGE
+                                      Unit: PERCENT
+                                      Dimensions:
+                                          - Key: JobFlowId
+                                            Value: "${emr.clusterId}"
 
+    TaskInstanceGroupConfig:
+        Type: AWS::EMR::InstanceGroupConfig
+        Properties:
+            Name: TaskInstance
+            InstanceRole: TASK
+            JobFlowId: !Ref Cluster
+            InstanceCount: !Ref InitialTaskSize
+            InstanceType: !Ref TaskInstanceType
+            Market: !If [WithSpotPrice, SPOT, ON_DEMAND]
+            BidPrice: !If [WithSpotPrice, !Ref SpotPrice, !Ref "AWS::NoValue"]
+            
+            Configurations:
+                - Classification: hive-site
+                  ConfigurationProperties:
+                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
+                      hive.aux.jars.path: !Ref ExtraJarsLocation
+
+            AutoScalingPolicy:
+                Constraints:
+                    MinCapacity: 1
+                    MaxCapacity: !Ref MaxTaskSize
+                Rules:
+                    - Name: TaskNodeScaleOut
+                      Description: "Task node scale-out based on HDFS utilization"
+                      Action:
+                          SimpleScalingPolicyConfiguration:
+                              AdjustmentType: CHANGE_IN_CAPACITY
+                              ScalingAdjustment: 1
+                              CoolDown: 300
+                      Trigger:
+                          CloudWatchAlarmDefinition:
+                              ComparisonOperator: LESS_THAN
+                              EvaluationPeriods: 1
+                              MetricName: YARNMemoryAvailablePercentage
+                              Namespace: AWS/ElasticMapReduce
+                              Period: 300
+                              Threshold: 20
+                              Statistic: AVERAGE
+                              Unit: PERCENT
+                              Dimensions:
+                                  - Key: JobFlowId
+                                    Value: "${emr.clusterId}"
+                    
+                    - Name: TaskNodeScaleIn
+                      Description: "Task node scale-in based on HDFS utilization"
+                      Action:
+                          SimpleScalingPolicyConfiguration:
+                              AdjustmentType: CHANGE_IN_CAPACITY
+                              ScalingAdjustment: -1
+                              CoolDown: 300
+                      Trigger:
+                          CloudWatchAlarmDefinition:
+                              ComparisonOperator: GREATER_THAN
+                              EvaluationPeriods: 1
+                              MetricName: YARNMemoryAvailablePercentage
+                              Namespace: AWS/ElasticMapReduce
+                              Period: 300
+                              Threshold: 75
+                              Statistic: AVERAGE
+                              Unit: PERCENT
+                              Dimensions:
+                                  - Key: JobFlowId
+                                    Value: "${emr.clusterId}"
+        
 Outputs:
     Cluster:
         Description: EMR Cluster DNS
