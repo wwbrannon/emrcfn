@@ -140,10 +140,15 @@ Resources:
             Applications:
                 - Name: Hadoop
                 - Name: Ganglia
+                
                 - Name: Hive
-                - Name: Spark
-                - Name: Pig
                 - Name: Hue
+                - Name: Pig
+                - Name: Tez
+                - Name: Mahout
+                
+                - Name: Spark
+                - Name: Zeppelin
 
             AutoScalingRole: !Ref AutoscalingRole
             JobFlowRole: !Ref InstanceProfile
