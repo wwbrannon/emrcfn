@@ -313,7 +313,7 @@ Resources:
             ActionOnFailure: CONTINUE
             JobFlowId: !Ref Cluster
             HadoopJarStep:
-                Jar: "command-runner.jar"
+                Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
                 Args:
                     - !Ref SpatialInstallScript
 
