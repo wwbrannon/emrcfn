@@ -1,12 +1,11 @@
 # TODO:
-#    o) does Hive successfully load jars from s3?
-#    o) Glue data catalog
+#    o) how to load jars from s3?
 
 AWSTemplateFormatVersion: 2010-09-09
 Description: "Create an EMR cluster with optionally spot task instances"
 
 Parameters:
-    ## Networking and access
+    ## Networking and account-specific
     VPC:
         Type: AWS::EC2::VPC::Id
         Default: vpc-7f009219
@@ -18,6 +17,10 @@ Parameters:
     KeyPair:
         Type: AWS::EC2::KeyPair::KeyName
         Default: wwbrannon
+
+    #ExtraJarsLocation:
+    #    Type: String
+    #    Default: s3://cortico-public/hadoop-jar/
 
     ## Instance types
     MasterInstanceType:
@@ -57,10 +60,6 @@ Parameters:
     SpotPrice:
         Type: Number
         Default: 0.1 # or 0 for on-demand
-
-    ExtraJarsLocation:
-        Type: String
-        Default: s3://cortico-public/hadoop-jar/
 
     ReleaseLabel:
         Type: String
@@ -158,12 +157,12 @@ Resources:
             ServiceRole: !Ref ServiceRole
             
             Configurations:
-#                - Classification: spark-hive-site
-#                  ConfigurationProperties:
-#                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
-#                - Classification: hive-site
-#                  ConfigurationProperties:
-#                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
+                - Classification: hive-site
+                  ConfigurationProperties:
+                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
+                - Classification: spark-hive-site
+                  ConfigurationProperties:
+                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
                 - Classification: yarn-site
                   ConfigurationProperties:
                       yarn.log-aggregation-enable: true
@@ -238,12 +237,12 @@ Resources:
             BidPrice: !If [WithSpotPrice, !Ref SpotPrice, !Ref "AWS::NoValue"]
             
             Configurations:
-#                - Classification: spark-hive-site
-#                  ConfigurationProperties:
-#                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
-#                - Classification: hive-site
-#                  ConfigurationProperties:
-#                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
+                - Classification: hive-site
+                  ConfigurationProperties:
+                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
+                - Classification: spark-hive-site
+                  ConfigurationProperties:
+                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
                 - Classification: yarn-site
                   ConfigurationProperties:
                       yarn.log-aggregation-enable: true
