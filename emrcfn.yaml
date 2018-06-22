@@ -3,6 +3,10 @@ Description: "Create an EMR cluster with optionally spot task instances"
 
 Parameters:
     ## Networking and account-specific
+    VpcId:
+        Type: AWS::EC2::VPC::Id
+        Default: vpc-7f009219
+
     Subnet:
         Type: AWS::EC2::Subnet::Id
         Default: subnet-2e4f0975
@@ -73,7 +77,7 @@ Resources:
         Type: AWS::EC2::SecurityGroup
         Properties:
             GroupDescription: "Allow SSH from anywhere"
-            VpcId: !GetAtt Subnet.VpcId
+            VpcId: !Ref VpcId
             SecurityGroupIngress:
                 - IpProtocol: tcp
                   FromPort: 22
