@@ -32,7 +32,7 @@ where
 
 ### Deployment
 Deployment is as follows:
-1. Copy the `hadoop/` directory to an S3 prefix readable by the IAM user creating the cluster.
+1. Copy the `hadoop/` directory as-is to an S3 prefix readable by the IAM user creating the cluster. You should wind up with these files under, e.g., `s3://mybucket/prefixname/hadoop/`.
 2. Run the Cloudformation template, passing the parameters
     * `VpcId` (the VPC in which to create the cluster),
     * `Subnet` (the subnet in which to create the cluster),
