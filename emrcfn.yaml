@@ -150,6 +150,8 @@ Resources:
                 - Name: Spark
                 - Name: Zeppelin
 
+                - Name: Presto
+
             AutoScalingRole: !Ref AutoscalingRole
             JobFlowRole: !Ref InstanceProfile
             ServiceRole: !Ref ServiceRole
