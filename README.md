@@ -9,6 +9,7 @@ Other than Hive spatial support, the cluster is configured with the following fe
 * Spot instances for task nodes, to minimize costs without risking data loss;
 * Core Hadoop: Hadoop, Ganglia, Hive, Hue, Pig, Tez and Mahout;
 * Spark: Spark and Zeppelin;
+* Presto;
 * Hadoop debugging and logging to an S3 bucket;
 * AWS Glue for the Hive and Spark metastores.
 
