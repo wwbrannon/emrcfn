@@ -2,7 +2,7 @@
 
 set -e
 
-aws s3 cp --recursive "$1/hadoop/" .
+aws s3 cp --recursive "s3://$1/hadoop/" .
 
 hadoop fs -rm -r -f hdfs:/spatial/
 hadoop fs -mkdir hdfs:/spatial/
