@@ -1,7 +1,7 @@
 geoemr
 ------
 
-This repo's scripts set up an EMR cluster with spatially enabled Hive. The `emrcfn.yaml` template sets up the cluster and relies on resources under the `hadoop/` directory for geospatial support.
+This repo's scripts set up an EMR cluster with spatially enabled Hive. The `emrcfn.yaml` template sets up the cluster and relies on resources under the `hadoop/` directory for geospatial support. The template outputs cluster attributes to facilitate nesting it within other templates.
 
 ### Cluster features
 Other than Hive spatial support, the cluster is configured with the following features:
@@ -12,7 +12,7 @@ Other than Hive spatial support, the cluster is configured with the following fe
 * Hadoop debugging and logging to an S3 bucket;
 * AWS Glue for the Hive and Spark metastores.
 
-Spot instances for task nodes can be replaced with on-demand, if desired. 
+Spot instances for task nodes can be replaced with on-demand, if desired.
 
 ### Spatial support
 One of the steps run on cluster creation loads ESRI's [geospatial library for Hadoop](https://github.com/esri/gptools-for-aws/). The jar file (in this repo under `hadoop/jar/`) is copied to HDFS and the relevant Hive DDL statements (in `hadoop/sql/spatial.sql`) set up UDFs in the Glue metastore. If the functions are already defined, they are dropped and recreated.
@@ -25,19 +25,19 @@ select
 from default.iot_observations io
 	cross join default.census_geo cg
 where
-	cg.level = 'block' and
+	cg.level = 'blockgroup' and
 	ST_Intersects(ST_Point(io.longitude, io.latitude),
                   st_GeomFromText(cg.wkt));
 ```
 
 ### Deployment
 Deployment is as follows:
-1. Copy the `hadoop/` directory to an s3 bucket readable by the IAM user creating the cluster.
+1. Copy the `hadoop/` directory to an S3 prefix readable by the IAM user creating the cluster.
 2. Run the Cloudformation template, passing the parameters
     * `VpcId` (the VPC in which to create the cluster),
     * `Subnet` (the subnet in which to create the cluster),
     * `KeyPair` (the SSH keypair to use for connections to the master node) and 
-    * `SpatialInstallScript` (the S3 URL of the `install.sh` script copied in step 1).
+    * `SpatialInstallS3Prefix` (the S3 prefix in step 1, including the bucket name but without the leading 's3://' and trailing '/', as in `mybucket/prefixname` rather than `s3://mybucket/prefixname/`).
 
 An example AWS CLI command deploying the template is:
 ```
@@ -47,5 +47,5 @@ aws cloudformation create-stack --stack-name emrcfn \
                                 --parameters ParameterKey=VpcId,ParameterValue=vpc-XXXXXXXX \
                                              ParameterKey=Subnet,ParameterValue=subnet-XXXXXXXX \
                                              ParameterKey=KeyPair,ParameterValue=MyKeyPairName,
-                                             ParameterKey=SpatialInstallScript,ParameterValue=s3://mybucket/hadoop/install.sh
+                                             ParameterKey=SpatialInstallS3Prefix,ParameterValue=mybucket/stuff
 ```
