@@ -2,22 +2,18 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: "Create an EMR cluster with optionally spot task instances"
 
 Parameters:
-    ## Networking and account-specific
+    ## Account-specific
     VpcId:
         Type: AWS::EC2::VPC::Id
-        Default: vpc-7f009219
 
     Subnet:
         Type: AWS::EC2::Subnet::Id
-        Default: subnet-2e4f0975
 
     KeyPair:
         Type: AWS::EC2::KeyPair::KeyName
-        Default: wwbrannon
 
     SpatialInstallScript:
         Type: String
-        Default: s3://cortico-public/hadoop/install.sh
 
     ## Instance types
     MasterInstanceType:
