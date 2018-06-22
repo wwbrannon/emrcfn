@@ -1,11 +1,9 @@
 drop function if exists ST_AsBinary; create function ST_AsBinary as 'com.esri.hadoop.hive.ST_AsBinary' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
 drop function if exists ST_AsGeoJSON; create function ST_AsGeoJSON as 'com.esri.hadoop.hive.ST_AsGeoJson' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
 drop function if exists ST_AsJSON; create function ST_AsJSON as 'com.esri.hadoop.hive.ST_AsJson' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
-drop function if exists ST_AsShape; create function ST_AsShape as 'com.esri.hadoop.hive.ST_AsShape' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
 drop function if exists ST_AsText; create function ST_AsText as 'com.esri.hadoop.hive.ST_AsText' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
 drop function if exists ST_GeomFromJSON; create function ST_GeomFromJSON as 'com.esri.hadoop.hive.ST_GeomFromJson' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
 drop function if exists ST_GeomFromGeoJSON; create function ST_GeomFromGeoJSON as 'com.esri.hadoop.hive.ST_GeomFromGeoJson' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
-drop function if exists ST_GeomFromShape; create function ST_GeomFromShape as 'com.esri.hadoop.hive.ST_GeomFromShape' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
 drop function if exists ST_GeomFromText; create function ST_GeomFromText as 'com.esri.hadoop.hive.ST_GeomFromText' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
 drop function if exists ST_GeomFromWKB; create function ST_GeomFromWKB as 'com.esri.hadoop.hive.ST_GeomFromWKB' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
 drop function if exists ST_PointFromWKB; create function ST_PointFromWKB as 'com.esri.hadoop.hive.ST_PointFromWKB' using jar 'hdfs:/spatial/gis-tools-hadoop-2.0.jar';
