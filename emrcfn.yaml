@@ -12,7 +12,7 @@ Parameters:
     KeyPair:
         Type: AWS::EC2::KeyPair::KeyName
 
-    SpatialInstallScript:
+    SpatialInstallS3Prefix:
         Type: String
 
     ## Instance types
@@ -316,7 +316,8 @@ Resources:
             HadoopJarStep:
                 Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
                 Args:
-                    - !Ref SpatialInstallScript
+                    - !Sub s3://${SpatialInstallS3Prefix}/hadoop/install.sh
+                    - !Ref SpatialInstallS3Prefix
 
 Outputs:
     ClusterDNS:
