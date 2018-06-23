@@ -22,16 +22,16 @@ Parameters:
 
     CoreInstanceType:
         Type: String
-        Default: m4.large
+        Default: m4.xlarge
 
     TaskInstanceType:
         Type: String
-        Default: m4.large
+        Default: m4.xlarge
 
     ## Instance counts and bounds
     InitialCoreSize:
         Type: Number
-        Default: 1
+        Default: 5
 
     MaxCoreSize:
         Type: Number
@@ -39,7 +39,7 @@ Parameters:
 
     InitialTaskSize:
         Type: Number
-        Default: 1
+        Default: 0
 
     MaxTaskSize:
         Type: Number
@@ -259,7 +259,7 @@ Resources:
 
             AutoScalingPolicy:
                 Constraints:
-                    MinCapacity: 1
+                    MinCapacity: 0
                     MaxCapacity: !Ref MaxTaskSize
                 Rules:
                     - Name: TaskNodeScaleOut
