@@ -1,4 +1,4 @@
-drop function if exists BT_Base; create function 'BT_Base' as 'com.wwbrannon.bing.BT_Base' using 'hdfs:/spatial/bing-tile-hive-1.0.jar';
+drop function if exists BT_AsGeometry; create function 'BT_ToGeometry' as 'com.wwbrannon.bing.BT_ToGeometry' using 'hdfs:/spatial/bing-tile-hive-1.0.jar';
 drop function if exists BT_FromLatLon; create function 'BT_FromLatLon' as 'com.wwbrannon.bing.BT_FromLatLon' using 'hdfs:/spatial/bing-tile-hive-1.0.jar';
 drop function if exists BT_GetX; create function 'BT_GetX' as 'com.wwbrannon.bing.BT_GetX' using 'hdfs:/spatial/bing-tile-hive-1.0.jar';
 drop function if exists BT_TilesAround; create function 'BT_TilesAround' as 'com.wwbrannon.bing.BT_TilesAround' using 'hdfs:/spatial/bing-tile-hive-1.0.jar';
@@ -9,5 +9,4 @@ drop function if exists BT_TilesCoveringGeometry; create function 'BT_TilesCover
 drop function if exists BT_FromCoordinates; create function 'BT_FromCoordinates' as 'com.wwbrannon.bing.BT_FromCoordinates' using 'hdfs:/spatial/bing-tile-hive-1.0.jar';
 drop function if exists BT_GetQuadKey; create function 'BT_GetQuadKey' as 'com.wwbrannon.bing.BT_GetQuadKey' using 'hdfs:/spatial/bing-tile-hive-1.0.jar';
 drop function if exists BT_GetZoomLevel; create function 'BT_GetZoomLevel' as 'com.wwbrannon.bing.BT_GetZoomLevel' using 'hdfs:/spatial/bing-tile-hive-1.0.jar';
-drop function if exists BT_ToGeometry; create function 'BT_ToGeometry' as 'com.wwbrannon.bing.BT_ToGeometry' using 'hdfs:/spatial/bing-tile-hive-1.0.jar';
 
