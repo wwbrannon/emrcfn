@@ -16,7 +16,11 @@ Other than Hive spatial support, the cluster is configured with the following fe
 Spot instances for task nodes can be replaced with on-demand, if desired.
 
 ### Spatial support
-One of the steps run on cluster creation loads ESRI's [geospatial library for Hadoop](https://github.com/esri/gptools-for-aws/). The jar file (in this repo under `hadoop/jar/`) is copied to HDFS and the relevant Hive DDL statements (in `hadoop/sql/spatial.sql`) set up UDFs in the Glue metastore. If the functions are already defined, they are dropped and recreated.
+One of the steps run on cluster creation loads two jars of spatial functions:
+* ESRI's [geospatial library for Hadoop](https://github.com/esri/gptools-for-aws/), containing the usual set of `ST_*` functions, and
+* A [port](https://github.com/wwbrannon/bing-tile-hive) of Presto's functions for working with Bing tiles.
+
+The jar files (in this repo under `hadoop/jar/`) are copied to HDFS and the relevant Hive DDL statements (under `hadoop/sql/`) set up UDFs in the Glue metastore. If the functions are already defined, they are dropped and recreated.
 
 The `ST_*` spatial functions allow queries on geographic objects. If we have one table of Census geographies, with their WKT representations, and another of lat-long locations reported by IoT devices, we can identify the Census block groups where we've observed devices as follows:
 ```
@@ -30,6 +34,8 @@ where
 	ST_Intersects(ST_Point(io.longitude, io.latitude),
                   st_GeomFromText(cg.wkt));
 ```
+
+The `BT_*` functions for Bing tiles are perhaps most useful for performing [efficient spatial joins](https://github.com/wwbrannon/bing-tile-hive#use-for-spatial-joins).
 
 ### Deployment
 Deployment is as follows:
