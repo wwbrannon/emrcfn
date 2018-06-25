@@ -1,4 +1,4 @@
-drop function if exists BT_AsGeometry; create function BT_ToGeometry as 'com.wwbrannon.bing.BT_ToGeometry' using jar 'hdfs:/spatial/bing-tile-hive-1.0.jar';
+drop function if exists BT_AsGeometry; create function BT_AsGeometry as 'com.wwbrannon.bing.BT_AsGeometry' using jar 'hdfs:/spatial/bing-tile-hive-1.0.jar';
 drop function if exists BT_Equals; create function BT_Equals as 'com.wwbrannon.bing.BT_Equals' using jar 'hdfs:/spatial/bing-tile-hive-1.0.jar';
 drop function if exists BT_FromCoordinates; create function BT_FromCoordinates as 'com.wwbrannon.bing.BT_FromCoordinates' using jar 'hdfs:/spatial/bing-tile-hive-1.0.jar';
 drop function if exists BT_FromLatLon; create function BT_FromLatLon as 'com.wwbrannon.bing.BT_FromLatLon' using jar 'hdfs:/spatial/bing-tile-hive-1.0.jar';
