@@ -72,12 +72,22 @@ Resources:
     SecurityGroup:
         Type: AWS::EC2::SecurityGroup
         Properties:
-            GroupDescription: "Allow SSH from anywhere"
+            GroupDescription: "Allow SSH/web from anywhere"
             VpcId: !Ref VpcId
             SecurityGroupIngress:
                 - IpProtocol: tcp
                   FromPort: 22
                   ToPort: 22
+                  CidrIp: 0.0.0.0/0
+                
+                - IpProtocol: tcp
+                  FromPort: 80
+                  ToPort: 80
+                  CidrIp: 0.0.0.0/0
+                
+                - IpProtocol: tcp
+                  FromPort: 443
+                  ToPort: 443
                   CidrIp: 0.0.0.0/0
 
     ServiceRole:
