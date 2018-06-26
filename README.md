@@ -16,13 +16,13 @@ Other than Hive spatial support, the cluster is configured with the following fe
 Spot instances for task nodes can be replaced with on-demand, if desired.
 
 ### Spatial support
-One of the steps run on cluster creation loads two jars of spatial functions:
-* ESRI's [geospatial library for Hadoop](https://github.com/esri/gptools-for-aws/), containing the usual set of `ST_*` functions, and
-* A [port](https://github.com/wwbrannon/bing-tile-hive) of Presto's functions for working with Bing tiles.
+One of the steps run on cluster creation loads a jar containing two sets of spatial functions:
+* ESRI's [geospatial library for Hadoop](https://github.com/esri/spatial-framework-for-hadoop), containing the usual set of `ST_*` functions, and
+* a [port](https://github.com/wwbrannon/bing-tile-hive) of Presto's functions for working with Bing tiles.
 
-The jar files (in this repo under `hadoop/jar/`) are copied to HDFS and the relevant Hive DDL statements (under `hadoop/sql/`) set up UDFs in the Glue metastore. If the functions are already defined, they are dropped and recreated.
+(If you're writing Java MapReduce jobs, ESRI's [Java Geometry API](https://github.com/esri/geometry-api-java) is also bundled in the jar as a dependency of both of the above.) The jar file (in this repo under `hadoop/jar/`) is copied to HDFS and the relevant Hive DDL statements (under `hadoop/sql/`) set up the UDFs. If the functions are already defined, they are dropped and recreated.
 
-The `ST_*` spatial functions allow queries on geographic objects. If we have one table of Census geographies, with their WKT representations, and another of lat-long locations reported by IoT devices, we can identify the Census block groups where we've observed devices as follows:
+The `ST_*` spatial functions allow queries on geographic objects. As an example, if we have one table of Census geographies, with their WKT representations, and another of lat-long locations reported by IoT devices, we can identify the Census block groups where we've observed devices as follows:
 ```
 select
 	io.*,
@@ -35,7 +35,7 @@ where
                   st_GeomFromText(cg.wkt));
 ```
 
-The `BT_*` functions for Bing tiles are perhaps most useful for performing [efficient spatial joins](https://github.com/wwbrannon/bing-tile-hive#use-for-spatial-joins).
+By default, however, Hive implements this query very inefficiently, by actually materializing and filtering the Cartesian product of the two tables. Because Hive doesn't natively support [spatial indexes](https://blog.mapbox.com/a-dive-into-spatial-search-algorithms-ebd0c5e39d2a), the `BT_*` functions for Bing tiles can be useful for [implementing your own](https://github.com/wwbrannon/bing-tile-hive#use-for-spatial-joins) and speeding up spatial joins.
 
 ### Deployment
 Deployment is as follows:
