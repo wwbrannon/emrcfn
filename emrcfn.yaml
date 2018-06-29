@@ -60,11 +60,14 @@ Parameters:
 
     ReplicationFactor:
         Type: Number
-        Default: !Ref AWS::NoValue
+        Default: -1
 
 Conditions:
     WithSpotPrice:
         !Not [!Equals [0, !Ref SpotPrice]]
+
+    DefaultReplication:
+        !Equals [-1, !Ref ReplicationFactor]
 
 Resources:
     LogBucket:
@@ -165,7 +168,7 @@ Resources:
             Configurations:
                 - Classification: hdfs-site
                   ConfigurationProperties:
-                      dfs.replication: !Ref ReplicationFactor
+                      dfs.replication: !If [DefaultReplication, !Ref AWS::NoValue, !Ref ReplicationFactor]
                 - Classification: presto-connector-hive
                   ConfigurationProperties:
                       hive.metastore.glue.datacatalog.enabled: true
