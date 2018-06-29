@@ -58,6 +58,10 @@ Parameters:
         Type: String
         Default: emr-5.14.0
 
+    ReplicationFactor:
+        Type: Number
+        Default: !Ref AWS::NoValue
+
 Conditions:
     WithSpotPrice:
         !Not [!Equals [0, !Ref SpotPrice]]
@@ -159,6 +163,9 @@ Resources:
             ScaleDownBehavior: TERMINATE_AT_TASK_COMPLETION
             
             Configurations:
+                - Classification: hdfs-site
+                  ConfigurationProperties:
+                      dfs.replication: !Ref ReplicationFactor
                 - Classification: presto-connector-hive
                   ConfigurationProperties:
                       hive.metastore.glue.datacatalog.enabled: true
