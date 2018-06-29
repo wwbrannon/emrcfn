@@ -168,7 +168,7 @@ Resources:
             Configurations:
                 - Classification: hdfs-site
                   ConfigurationProperties:
-                      dfs.replication: !If [DefaultReplication, !Ref AWS::NoValue, !Ref ReplicationFactor]
+                      dfs.replication: !If [DefaultReplication, !Ref "AWS::NoValue", !Ref ReplicationFactor]
                 - Classification: presto-connector-hive
                   ConfigurationProperties:
                       hive.metastore.glue.datacatalog.enabled: true
