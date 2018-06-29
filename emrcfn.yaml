@@ -48,7 +48,11 @@ Parameters:
     ## Misc parameters
     CoreStorage:
         Type: Number
-        Default: 100
+        Default: 200
+
+    TaskStorage:
+        Type: Number
+        Default: 200
 
     SpotPrice:
         Type: Number
@@ -250,6 +254,14 @@ Resources:
             InstanceType: !Ref TaskInstanceType
             Market: !If [WithSpotPrice, SPOT, ON_DEMAND]
             BidPrice: !If [WithSpotPrice, !Ref SpotPrice, !Ref "AWS::NoValue"]
+            
+            EbsConfiguration:
+                EbsBlockDeviceConfigs:
+                    - VolumeSpecification:
+                          SizeInGB: !Ref TaskStorage
+                          VolumeType: gp2
+                      VolumesPerInstance: 1
+                EbsOptimized: true
             
             Configurations:
                 - Classification: presto-connector-hive
