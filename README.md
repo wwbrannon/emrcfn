@@ -1,7 +1,7 @@
 geoemr
 ------
 
-This repo's scripts set up an EMR cluster with spatially enabled Hive. The `emrcfn.yaml` template sets up the cluster and relies on resources under the `hadoop/` directory for geospatial support. The template outputs cluster attributes to facilitate nesting it within other templates.
+This repo's scripts set up an EMR cluster with spatially enabled Hive. The `emrcfn.yaml` template sets up the cluster and relies on resources under the `steps/` directory for geospatial support. The template outputs cluster attributes to facilitate nesting it within other templates.
 
 ### Cluster features
 Other than Hive spatial support, the cluster is configured with the following features:
@@ -20,7 +20,7 @@ One of the steps run on cluster creation loads a jar containing two sets of spat
 * ESRI's [geospatial library for Hadoop](https://github.com/esri/spatial-framework-for-hadoop), containing the usual set of `ST_*` functions, and
 * a [port](https://github.com/wwbrannon/bing-tile-hive) of Presto's functions for working with Bing tiles.
 
-(If you're writing Java MapReduce jobs, ESRI's [Java Geometry API](https://github.com/esri/geometry-api-java) is also bundled in the jar as a dependency of both of the above.) The jar file (in this repo under `hadoop/jar/`) is copied to HDFS and the relevant Hive DDL statements (under `hadoop/sql/`) set up the UDFs. If the functions are already defined, they are dropped and recreated.
+(If you're writing Java MapReduce jobs, ESRI's [Java Geometry API](https://github.com/esri/geometry-api-java) is also bundled in the jar as a dependency of both of the above.) The jar file (in this repo under `steps/jar/`) is copied to HDFS and the relevant Hive DDL statements (under `steps/sql/`) set up the UDFs. If the functions are already defined, they are dropped and recreated.
 
 The `ST_*` spatial functions allow queries on geographic objects. As an example, if we have one table of Census geographies, with their WKT representations, and another of lat-long locations reported by IoT devices, we can identify the Census block groups where we've observed devices as follows:
 ```
@@ -39,7 +39,7 @@ By default, however, Hive implements this query very inefficiently, by actually 
 
 ### Deployment
 Deployment is as follows:
-1. Copy the `hadoop/` directory as-is to an S3 prefix readable by the IAM user creating the cluster. You should wind up with these files under, e.g., `s3://mybucket/prefixname/hadoop/`.
+1. Copy the `steps/` directory as-is to an S3 prefix readable by the IAM user creating the cluster. You should wind up with these files under, e.g., `s3://mybucket/prefixname/steps/`.
 2. Run the Cloudformation template, passing the parameters
     * `VpcId` (the VPC in which to create the cluster),
     * `Subnet` (the subnet in which to create the cluster),

@@ -12,7 +12,7 @@ Parameters:
     KeyPair:
         Type: AWS::EC2::KeyPair::KeyName
 
-    SpatialInstallS3Prefix:
+    S3StepsPrefix:
         Type: String
 
     ## Instance types
@@ -65,6 +65,18 @@ Parameters:
     ReplicationFactor:
         Type: Number
         Default: -1
+
+    SparkDriverMemory:
+        Type: String
+        Default: 1g
+
+    SparkExecutorMemory:
+        Type: String
+        Default: 1g
+
+    SparkMaxResultSize:
+        Type: String
+        Default: 1g
 
 Conditions:
     WithSpotPrice:
@@ -168,8 +180,31 @@ Resources:
             ServiceRole: !Ref ServiceRole
 
             ScaleDownBehavior: TERMINATE_AT_TASK_COMPLETION
-            
+
+            BootstrapActions:
+                - Name: spark_setup
+                  ScriptBootstrapAction:
+                      Path: !Sub s3://${S3StepsPrefix}/steps/spark.sh
+
             Configurations:
+                - Classification: spark
+                  ConfigurationProperties:
+                      maximizeResourceAllocation: true
+                - Classification: spark-env
+                  Configurations:
+                      - Classification: export
+                        ConfigurationProperties:
+                            PYSPARK_PYTHON: /opt/anaconda/bin/python3
+                            PYSPARK_DRIVER_PYTHON: ipython
+                - Classification: spark-defaults
+                  ConfigurationProperties:
+                      spark.sql.parquet.enableVectorizedReader: false
+                      spark.sql.files.ignoreCorruptFiles: true
+                      spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version: 2
+                      spark.task.maxFailures: 20
+                      spark.driver.memory: !Ref SparkDriverMemory
+                      spark.executor.memory: !Ref SparkExecutorMemory
+                      spark.driver.maxResultSize: !Ref SparkMaxResultSize
                 - Classification: hdfs-site
                   ConfigurationProperties:
                       dfs.replication: !If [DefaultReplication, !Ref "AWS::NoValue", !Ref ReplicationFactor]
@@ -264,6 +299,27 @@ Resources:
                 EbsOptimized: true
             
             Configurations:
+                - Classification: spark
+                  ConfigurationProperties:
+                      maximizeResourceAllocation: true
+                - Classification: spark-env
+                  Configurations:
+                      - Classification: export
+                        ConfigurationProperties:
+                            PYSPARK_PYTHON: /opt/anaconda/bin/python3
+                            PYSPARK_DRIVER_PYTHON: ipython
+                - Classification: spark-defaults
+                  ConfigurationProperties:
+                      spark.sql.parquet.enableVectorizedReader: false
+                      spark.sql.files.ignoreCorruptFiles: true
+                      spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version: 2
+                      spark.task.maxFailures: 20
+                      spark.driver.memory: !Ref SparkDriverMemory
+                      spark.executor.memory: !Ref SparkExecutorMemory
+                      spark.driver.maxResultSize: !Ref SparkMaxResultSize
+                - Classification: hdfs-site
+                  ConfigurationProperties:
+                      dfs.replication: !If [DefaultReplication, !Ref "AWS::NoValue", !Ref ReplicationFactor]
                 - Classification: presto-connector-hive
                   ConfigurationProperties:
                       hive.metastore.glue.datacatalog.enabled: true
@@ -339,7 +395,7 @@ Resources:
                 Args:
                     - 'state-pusher-script'
 
-    InstallSpatialStep:
+    SpatialStep:
         Type: AWS::EMR::Step
         Properties:
             Name: InstallSpatial
@@ -348,8 +404,8 @@ Resources:
             HadoopJarStep:
                 Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
                 Args:
-                    - !Sub s3://${SpatialInstallS3Prefix}/hadoop/install.sh
-                    - !Ref SpatialInstallS3Prefix
+                    - !Sub s3://${S3StepsPrefix}/steps/spatial.sh
+                    - !Ref S3StepsPrefix
 
 Outputs:
     ClusterDNS:
