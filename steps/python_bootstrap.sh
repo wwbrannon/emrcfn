@@ -17,24 +17,25 @@ DEACTIVATE="$INSTALL_DIR/bin/deactivate"
 
 wget "$ANACONDA_SCRIPT" -O ~/anaconda.sh
 sudo bash ~/anaconda.sh -b -p "$INSTALL_DIR"
+rm ~/anaconda.sh
 
 sudo "$CONDA" config --add channels conda-forge
 sudo "$CONDA" config --add channels pytorch
 
-"$CONDA" create -n spark anaconda python=3.6
+"$CONDA" create -y -n spark anaconda python=3.6
 source "$ACTIVATE" spark
 
 sudo "$CONDA" install -y -n spark tensorflow theano keras pytorch torchvision \
-                               numpy pandas scipy blaze patsy \
-                               networkx nltk scikit-learn statsmodels \
-                               matplotlib seaborn bokeh \
-                               ipython nbconvert nbformat \
-                               beautifulsoup4 boto boto3 requests \
-                               xlrd xlsxwriter xlwt \
-                               psycopg2 pyodbc sqlalchemy \
-                               six us tqdm sqlalchemy pandoc pandocfilters \
-                               nose sympy snappy cython jinja2 lxml pyyaml \
-                               pyspark
+                                  numpy pandas scipy blaze patsy \
+                                  networkx nltk scikit-learn statsmodels \
+                                  matplotlib seaborn bokeh \
+                                  ipython nbconvert nbformat \
+                                  beautifulsoup4 boto boto3 requests \
+                                  xlrd xlsxwriter xlwt \
+                                  psycopg2 pyodbc sqlalchemy \
+                                  six us tqdm sqlalchemy pandoc pandocfilters \
+                                  nose sympy snappy cython jinja2 lxml pyyaml \
+                                  pyspark
 
 source "$DEACTIVATE"
 

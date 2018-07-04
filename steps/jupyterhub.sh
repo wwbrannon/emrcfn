@@ -14,7 +14,7 @@ DEACTIVATE="$INSTALL_DIR/bin/deactivate"
 "$CONDA" config --add channels conda-forge
 "$CONDA" config --add channels pytorch
 
-"$CONDA" create -n spark anaconda ipykernel python=3.6
+"$CONDA" create -y -n spark anaconda ipykernel python=3.6
 source "$ACTIVATE" spark
 
 python -m ipykernel install
