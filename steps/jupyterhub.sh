@@ -15,22 +15,22 @@ DEACTIVATE="$INSTALL_DIR/bin/deactivate"
 "$CONDA" config --add channels pytorch
 
 "$CONDA" create -y -n spark anaconda ipykernel python=3.6
+
 source "$ACTIVATE" spark
-
 python -m ipykernel install
-
-"$CONDA" install -y tensorflow theano keras pytorch torchvision \
-                    numpy pandas scipy blaze patsy \
-                    networkx nltk scikit-learn statsmodels \
-                    matplotlib seaborn bokeh \
-                    ipython nbconvert nbformat \
-                    beautifulsoup4 boto boto3 requests \
-                    xlrd xlsxwriter xlwt \
-                    psycopg2 pyodbc sqlalchemy \
-                    six us tqdm sqlalchemy pandoc pandocfilters \
-                    nose sympy snappy cython jinja2 lxml pyyaml \
-                    pyspark
-
 source "$DEACTIVATE"
+
+"$CONDA" install -y -n spark tensorflow theano keras pytorch torchvision \
+                             numpy pandas scipy blaze patsy \
+                             networkx nltk scikit-learn statsmodels \
+                             matplotlib seaborn bokeh \
+                             ipython nbconvert nbformat \
+                             beautifulsoup4 boto boto3 requests \
+                             xlrd xlsxwriter xlwt \
+                             psycopg2 pyodbc sqlalchemy \
+                             six us tqdm sqlalchemy pandoc pandocfilters \
+                             nose sympy snappy cython jinja2 lxml pyyaml \
+                             pyspark
+
 EOF
 

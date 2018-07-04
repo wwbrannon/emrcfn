@@ -22,9 +22,7 @@ rm ~/anaconda.sh
 sudo "$CONDA" config --add channels conda-forge
 sudo "$CONDA" config --add channels pytorch
 
-"$CONDA" create -y -n spark anaconda python=3.6
-source "$ACTIVATE" spark
-
+sudo "$CONDA" create -y -n spark anaconda python=3.6
 sudo "$CONDA" install -y -n spark tensorflow theano keras pytorch torchvision \
                                   numpy pandas scipy blaze patsy \
                                   networkx nltk scikit-learn statsmodels \
@@ -37,5 +35,4 @@ sudo "$CONDA" install -y -n spark tensorflow theano keras pytorch torchvision \
                                   nose sympy snappy cython jinja2 lxml pyyaml \
                                   pyspark
 
-source "$DEACTIVATE"
 
