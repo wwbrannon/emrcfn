@@ -187,11 +187,6 @@ Resources:
 
             EbsRootVolumeSize: !Ref RootVolumeSize
 
-            BootstrapActions:
-                - Name: python_bootstrap
-                  ScriptBootstrapAction:
-                      Path: !Sub s3://${S3StepsPrefix}/steps/python_bootstrap.sh
-
             Configurations:
                 - Classification: spark
                   ConfigurationProperties:
@@ -205,7 +200,6 @@ Resources:
                       spark.driver.memory: !Ref SparkDriverMemory
                       spark.executor.memory: !Ref SparkExecutorMemory
                       spark.driver.maxResultSize: !Ref SparkMaxResultSize
-                      spark.pyspark.python: /opt/conda/envs/spark/bin/python
                 - Classification: hdfs-site
                   ConfigurationProperties:
                       dfs.replication: !If [DefaultReplication, !Ref "AWS::NoValue", !Ref ReplicationFactor]
@@ -403,16 +397,6 @@ Resources:
                     - !Sub s3://${S3StepsPrefix}/steps/spatial.sh
                     - !Ref S3StepsPrefix
 
-    JupyterStep:
-        Type: AWS::EMR::Step
-        Properties:
-            Name: InstallJupyterKernel
-            ActionOnFailure: CONTINUE
-            JobFlowId: !Ref Cluster
-            HadoopJarStep:
-                Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
-                Args:
-                    - !Sub s3://${S3StepsPrefix}/steps/jupyterhub.sh
 Outputs:
     ClusterDNS:
         Description: EMR Cluster DNS
