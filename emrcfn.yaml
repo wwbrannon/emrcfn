@@ -99,7 +99,7 @@ Resources:
     SecurityGroup:
         Type: AWS::EC2::SecurityGroup
         Properties:
-            GroupDescription: "Allow SSH/web from anywhere"
+            GroupDescription: "Allow SSH from anywhere"
             VpcId: !Ref VpcId
             SecurityGroupIngress:
                 - IpProtocol: tcp
@@ -306,7 +306,6 @@ Resources:
                       spark.driver.memory: !Ref SparkDriverMemory
                       spark.executor.memory: !Ref SparkExecutorMemory
                       spark.driver.maxResultSize: !Ref SparkMaxResultSize
-                      spark.pyspark.python: /opt/conda/envs/spark/bin/python
                 - Classification: hdfs-site
                   ConfigurationProperties:
                       dfs.replication: !If [DefaultReplication, !Ref "AWS::NoValue", !Ref ReplicationFactor]
