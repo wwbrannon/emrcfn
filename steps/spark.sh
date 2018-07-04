@@ -4,8 +4,8 @@
 sudo yum -y update
 sudo yum groups mark convert
 sudo yum groupinstall -y "Development Tools"
-sudo yum install -y ca-certificates unixODBC unixODBC-devel curl wget \
-                    libxml2-devel openssl-devel sqlite-devel python3-devel vim
+sudo yum install -y ca-certificates unixODBC unixODBC-devel curl wget vim \
+                    libxml2-devel openssl-devel sqlite-devel python3-devel
 
 # Python packages for Spark
 ANACONDA_SCRIPT="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
