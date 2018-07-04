@@ -304,6 +304,42 @@ Resources:
                 EbsOptimized: true
             
             Configurations:
+                - Classification: spark
+                  ConfigurationProperties:
+                      maximizeResourceAllocation: true
+                - Classification: spark-env
+                  Configurations:
+                      - Classification: export
+                        ConfigurationProperties:
+                            PYSPARK_PYTHON: /opt/conda/envs/spark/bin/python
+                - Classification: spark-defaults
+                  ConfigurationProperties:
+                      spark.sql.parquet.enableVectorizedReader: false
+                      spark.sql.files.ignoreCorruptFiles: true
+                      spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version: 2
+                      spark.task.maxFailures: 20
+                      spark.driver.memory: !Ref SparkDriverMemory
+                      spark.executor.memory: !Ref SparkExecutorMemory
+                      spark.driver.maxResultSize: !Ref SparkMaxResultSize
+                - Classification: hdfs-site
+                  ConfigurationProperties:
+                      dfs.replication: !If [DefaultReplication, !Ref "AWS::NoValue", !Ref ReplicationFactor]
+                - Classification: presto-connector-hive
+                  ConfigurationProperties:
+                      hive.metastore.glue.datacatalog.enabled: true
+                - Classification: hive-site
+                  ConfigurationProperties:
+                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
+                - Classification: spark-hive-site
+                  ConfigurationProperties:
+                      hive.metastore.client.factory.class: com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory
+                - Classification: yarn-site
+                  ConfigurationProperties:
+                      yarn.log-aggregation-enable: true
+                      yarn.log-aggregation.retain-seconds: -1
+                      yarn.nodemanager.remote-app-log-dir: !Sub
+                          - "s3://${bucket}/aggregated-logs/"
+                          - { bucket: !Ref LogBucket }
 
             AutoScalingPolicy:
                 Constraints:
