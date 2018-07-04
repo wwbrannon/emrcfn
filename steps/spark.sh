@@ -1,20 +1,11 @@
 #!/bin/bash -xe
 
 # Install system packages
-df -h
-findmnt
-
 sudo yum -y update
 sudo yum groups mark convert
 sudo yum groupinstall -y "Development Tools"
-sudo yum install -y \
-                    #autoconf automake binutils bison flex gcc gcc-c++ gettext \
-                    #libtool make patch pkgconfig redhat-rpm-config rpm-build \
-                    #rpm-sign byacc cscope ctags diffstat doxygen elfutils \
-                    #gcc-gfortran git indent intltool patchutils rcs subversion \
-                    #swig systemtap \
-                    ca-certificates unixODBC unixODBC-devel curl \
-                    wget libxml2-devel openssl-devel sqlite-devel python3-devel vim
+sudo yum install -y ca-certificates unixODBC unixODBC-devel curl wget \
+                    libxml2-devel openssl-devel sqlite-devel python3-devel vim
 
 # Python packages for Spark
 ANACONDA_SCRIPT="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"

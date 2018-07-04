@@ -54,6 +54,10 @@ Parameters:
         Type: Number
         Default: 200
 
+    RootVolumeSize:
+        Type: Number
+        Default: 32
+
     SpotPrice:
         Type: Number
         Default: 0.1 # or 0 for on-demand
@@ -180,6 +184,8 @@ Resources:
             ServiceRole: !Ref ServiceRole
 
             ScaleDownBehavior: TERMINATE_AT_TASK_COMPLETION
+
+            EbsRootVolumeSize: !Ref RootVolumeSize
 
             BootstrapActions:
                 - Name: spark_setup
