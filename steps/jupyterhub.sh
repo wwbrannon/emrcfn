@@ -1,6 +1,8 @@
 #!/bin/bash -xe
 
 sudo docker exec jupyterhub << "EOF"
+#!/bin/bash -xe
+
 apt-get update
 apt-get install build-essential
 
