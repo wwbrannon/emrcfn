@@ -3,6 +3,7 @@
 # Install system packages
 sudo yum -y update
 
+sudo yum groups mark convert
 sudo yum groupinstall -y "Development Tools"
 sudo yum install -y ca-certificates unixODBC unixODBC-devel curl wget
 sudo yum install -y libxml2-devel openssl-devel sqlite-devel python3-devel
@@ -13,8 +14,8 @@ ANACONDA_SCRIPT="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86
 
 wget "$ANACONDA_SCRIPT" -O ~/anaconda.sh
 sudo bash ~/anaconda.sh -b -p /opt/anaconda
-sudo /opt/anaconda/conda config --add channels conda-forge
-sudo /opt/anaconda/conda config --add channels pytorch
+sudo /opt/anaconda/bin/conda config --add channels conda-forge
+sudo /opt/anaconda/bin/conda config --add channels pytorch
 
 sudo /opt/anaconda/bin/conda install -y \
                       tensorflow theano keras pytorch torchvision \
