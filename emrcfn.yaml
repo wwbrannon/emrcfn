@@ -64,7 +64,7 @@ Parameters:
 
     ReleaseLabel:
         Type: String
-        Default: emr-5.14.0
+        Default: emr-5.15.0
 
     ReplicationFactor:
         Type: Number
@@ -166,18 +166,18 @@ Resources:
 
             Applications:
                 - Name: Hadoop
+                - Name: Spark
+                
                 - Name: Ganglia
                 
                 - Name: Hive
-                - Name: Hue
                 - Name: Pig
                 - Name: Tez
                 - Name: Mahout
-                
-                - Name: Spark
-                - Name: Zeppelin
-
                 - Name: Presto
+                
+                - Name: Hue
+                - Name: JupyterHub
 
             AutoScalingRole: !Ref AutoscalingRole
             JobFlowRole: !Ref InstanceProfile
