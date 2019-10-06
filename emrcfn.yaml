@@ -179,7 +179,7 @@ Resources:
                 - Name: Pig
                 - Name: Tez
                 - Name: Mahout
-                - Name: Presto
+                # - Name: Presto
 
                 - Name: Hue
                 - Name: JupyterHub
