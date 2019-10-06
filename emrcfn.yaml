@@ -44,7 +44,7 @@ Parameters:
     MaxTaskSize:
         Type: Number
         Default: 10
-    
+
     ## Misc parameters
     CoreStorage:
         Type: Number
@@ -64,7 +64,7 @@ Parameters:
 
     ReleaseLabel:
         Type: String
-        Default: emr-5.15.0
+        Default: emr-5.27.0
 
     ReplicationFactor:
         Type: Number
@@ -106,7 +106,7 @@ Resources:
                   FromPort: 22
                   ToPort: 22
                   CidrIp: 0.0.0.0/0
-                
+
     ServiceRole:
         Type: AWS::IAM::Role
         Properties:
@@ -119,7 +119,7 @@ Resources:
                               - elasticmapreduce.amazonaws.com
             ManagedPolicyArns:
                 - arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceRole
-    
+
     JobFlowRole:
         Type: AWS::IAM::Role
         Properties:
@@ -132,7 +132,7 @@ Resources:
                               - ec2.amazonaws.com
             ManagedPolicyArns:
                 - arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforEC2Role
-    
+
     AutoscalingRole:
         Type: AWS::IAM::Role
         Properties:
@@ -146,20 +146,20 @@ Resources:
                               - application-autoscaling.amazonaws.com
             ManagedPolicyArns:
                 - arn:aws:iam::aws:policy/service-role/AmazonElasticMapReduceforAutoScalingRole
-    
+
     InstanceProfile:
         Type: AWS::IAM::InstanceProfile
         Properties:
             Roles:
                 - !Ref JobFlowRole
-    
+
     Cluster:
         Type: AWS::EMR::Cluster
         Properties:
             Name: !Ref "AWS::StackName"
             ReleaseLabel: !Ref ReleaseLabel
             VisibleToAllUsers: true
-            
+
             LogUri: !Sub
                 - "s3://${bucket}/emr-logs/"
                 - { bucket: !Ref LogBucket }
@@ -167,15 +167,15 @@ Resources:
             Applications:
                 - Name: Hadoop
                 - Name: Spark
-                
+
                 - Name: Ganglia
-                
+
                 - Name: Hive
                 - Name: Pig
                 - Name: Tez
                 - Name: Mahout
                 - Name: Presto
-                
+
                 - Name: Hue
                 - Name: JupyterHub
 
@@ -226,7 +226,7 @@ Resources:
                 Ec2SubnetId: !Ref Subnet
                 AdditionalMasterSecurityGroups:
                     - !Ref SecurityGroup
-                
+
                 MasterInstanceGroup:
                     InstanceCount: 1
                     InstanceType: !Ref MasterInstanceType
@@ -238,7 +238,7 @@ Resources:
                     InstanceType: !Ref CoreInstanceType
                     Market: ON_DEMAND
                     Name: CoreInstance
-                    
+
                     EbsConfiguration:
                         EbsBlockDeviceConfigs:
                             - VolumeSpecification:
@@ -251,7 +251,7 @@ Resources:
                         Constraints:
                             MinCapacity: 1
                             MaxCapacity: !Ref MaxCoreSize
-                        
+
                         Rules:
                             - Name: CoreNodeScaleOut
                               Description: "Core node scale-out based on HDFS utilization"
@@ -284,7 +284,7 @@ Resources:
             InstanceType: !Ref TaskInstanceType
             Market: !If [WithSpotPrice, SPOT, ON_DEMAND]
             BidPrice: !If [WithSpotPrice, !Ref SpotPrice, !Ref "AWS::NoValue"]
-            
+
             EbsConfiguration:
                 EbsBlockDeviceConfigs:
                     - VolumeSpecification:
@@ -292,7 +292,7 @@ Resources:
                           VolumeType: gp2
                       VolumesPerInstance: 1
                 EbsOptimized: true
-            
+
             Configurations:
                 - Classification: spark
                   ConfigurationProperties:
@@ -351,7 +351,7 @@ Resources:
                               Dimensions:
                                   - Key: JobFlowId
                                     Value: "${emr.clusterId}"
-                    
+
                     - Name: TaskNodeScaleIn
                       Description: "Task node scale-in based on memory utilization"
                       Action:
