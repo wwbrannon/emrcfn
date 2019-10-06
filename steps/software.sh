@@ -1,4 +1,4 @@
 #!/bin/bash -xe
 
-yum groupinstall -v -y "Development Tools"
+sudo yum groupinstall -v -y "Development Tools"
 
