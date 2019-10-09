@@ -45,6 +45,15 @@ Parameters:
         Type: Number
         Default: 10
 
+    ## Software versions
+    ReleaseLabel:
+        Type: String
+        Default: emr-5.27.0
+
+    MinicondaScriptURL:
+        Type: String
+        Default: "https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+
     ## Misc parameters
     CoreStorage:
         Type: Number
@@ -60,11 +69,7 @@ Parameters:
 
     SpotPrice:
         Type: Number
-        Default: 0.1 # or 0 for on-demand
-
-    ReleaseLabel:
-        Type: String
-        Default: emr-5.27.0
+        Default: 0.1 # set to 0 for on-demand
 
     ReplicationFactor:
         Type: Number
@@ -172,6 +177,8 @@ Resources:
                 - Name: Miniconda
                   ScriptBootstrapAction:
                       Path: !Sub s3://${S3StepsPrefix}/steps/bin/miniconda.sh
+                      Args:
+                          - !Ref MinicondaScriptURL
 
             LogUri: !Sub
                 - "s3://${bucket}/emr-logs/"
