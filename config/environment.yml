@@ -11,10 +11,11 @@ dependencies:
     - bloom-filter
     - torchviz
     - docopt
-    - en-core-web-lg
-    - en-core-web-md
-    - en-core-web-sm
-    - en-vectors-web-lg
+    - spark_sklearn
+    #- en-core-web-lg
+    #- en-core-web-md
+    #- en-core-web-sm
+    #- en-vectors-web-lg
   - absl-py
   - asn1crypto
   - astor
@@ -209,6 +210,8 @@ dependencies:
   - routes
   - rtree
   - s3transfer
+  - s3contents
+  - s3fs
   - scikit-learn
   - scipy
   - seaborn
@@ -229,7 +232,7 @@ dependencies:
   - tensorboard
   - tensorflow
   - tensorflow-estimator
-  - tensorflow-gpu
+  - tensorflow
   - termcolor
   - testpath
   - thinc
@@ -244,6 +247,7 @@ dependencies:
   - wcwidth
   - webencodings
   - werkzeug
+  - widgetsnbextension
   - wheel
   - wordcloud
   - wrapt
