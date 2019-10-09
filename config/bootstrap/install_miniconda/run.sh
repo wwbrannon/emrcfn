@@ -11,6 +11,7 @@ rm "$HOME/miniconda.sh" # clean up
 # the ".bash_local" bit is to avoid clashing with my dotfiles on master node
 echo -e "\nexport \"PATH=$HOME/conda/bin:$PATH\"" >> "$HOME/.bash_local"
 echo -e "\nsource \"$HOME/.bash_local\"" >> "$HOME/.bashrc"
+source "$HOME/.bashrc"
 
 # install packages
 conda env update -q -n base -f environment.yml
