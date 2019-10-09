@@ -178,6 +178,7 @@ Resources:
                   ScriptBootstrapAction:
                       Path: !Sub s3://${S3ConfigPrefix}/config/bootstrap/install_miniconda/run.sh
                       Args:
+                          - !Ref S3ConfigPrefix
                           - !Ref MinicondaScriptURL
 
             LogUri: !Sub
@@ -425,6 +426,7 @@ Resources:
                 Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
                 Args:
                     - !Sub s3://${S3ConfigPrefix}/config/step/setup_miniconda/run.sh
+                    - !Ref S3ConfigPrefix
 
     # Get EMR's Docker Jupyterhub configured to use the same conda environment
     # we've deployed to the nodes and made Spark's default. This way, no
@@ -439,6 +441,7 @@ Resources:
                 Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
                 Args:
                     - !Sub s3://${S3ConfigPrefix}/config/step/setup_jupyterhub/run.sh
+                    - !Ref S3ConfigPrefix
 Outputs:
     ClusterDNS:
         Description: EMR Cluster DNS
