@@ -1,25 +1,36 @@
 name: sparkenv
 channels:
   - conda-forge
-  - pytorch
   - defaults
 dependencies:
   - python=3.7.0
+
+  # packages via pip
   - pip
   - pip:
     - num2words
-    - torchtext
     - bloom-filter
-    - torchviz
     - spark_sklearn
+    #- torchtext
+    #- torchviz
+
+  # large deep learning packages via conda
+  #- cudatoolkit
+  #- cudnn
+  #- pytorch
+  #- torchvision
+  #- keras
+  #- keras-applications
+  #- keras-base
+  #- keras-preprocessing
+
+  # other packages via conda
   - basemap
   - beautifulsoup4
   - blas
   - boto
   - boto3
   - botocore
-  - cudatoolkit
-  - cudnn
   - curl
   - fiona
   - future
@@ -33,7 +44,6 @@ dependencies:
   - hdf5
   - icu
   - idna
-  - intel-openmp
   - ipykernel
   - ipython
   - ipython_genutils
@@ -43,22 +53,10 @@ dependencies:
   - jsonschema
   - jupyter_client
   - jupyter_core
-  - keras
-  - keras-applications
-  - keras-base
-  - keras-preprocessing
   - krb5
   - markdown
   - matplotlib
   - matplotlib-base
-  - mkl
-  - mkl_fft
-  - mkl_random
-  - mkl-service
-  - mock
-  - more-itertools
-  - mysqlclient
-  - mysql-connector-c
   - nbconvert
   - nbformat
   - networkx
@@ -69,9 +67,7 @@ dependencies:
   - pandoc
   - pandocfilters
   - patsy
-  - pattern
   - pcre
-  - pip
   - plotly
   - protobuf
   - psycopg2
@@ -82,7 +78,6 @@ dependencies:
   - python-dateutil
   - python-docx
   - python-louvain
-  - pytorch
   - pytz
   - pyyaml
   - readline
@@ -103,7 +98,6 @@ dependencies:
   - sqlalchemy
   - sqlite
   - statsmodels
-  - torchvision
   - tqdm
   - urllib3
   - webencodings
