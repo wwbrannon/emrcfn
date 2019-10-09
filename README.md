@@ -54,6 +54,6 @@ aws cloudformation create-stack --stack-name emrcfn \
                                 --parameters ParameterKey=VpcId,ParameterValue=vpc-XXXXXXXX \
                                              ParameterKey=Subnet,ParameterValue=subnet-XXXXXXXX \
                                              ParameterKey=KeyPair,ParameterValue=MyKeyPairName \
-                                             ParameterKey=S3StepsPrefix,ParameterValue=mybucket/prefixname
+                                             ParameterKey=S3ConfigPrefix,ParameterValue=mybucket/prefixname
 ```
 
