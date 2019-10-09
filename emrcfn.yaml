@@ -12,7 +12,7 @@ Parameters:
     KeyPair:
         Type: AWS::EC2::KeyPair::KeyName
 
-    S3StepsPrefix:
+    S3ConfigPrefix:
         Type: String
 
     ## Instance types
@@ -166,17 +166,17 @@ Resources:
             VisibleToAllUsers: true
 
             BootstrapActions:
-                - Name: SystemSoftware
+                - Name: InstallSystemSoftware
                   ScriptBootstrapAction:
-                      Path: !Sub s3://${S3StepsPrefix}/config/bin/system_software.sh
+                      Path: !Sub s3://${S3ConfigPrefix}/config/bootstrap/install_system_software/run.sh
 
                 # Spark dependency management is awful, so we're going to
                 # install miniconda on the worker nodes to get known package
                 # versions etc. A step run after Spark installation tells it
                 # to use the miniconda python.
-                - Name: Miniconda
+                - Name: InstallMiniconda
                   ScriptBootstrapAction:
-                      Path: !Sub s3://${S3StepsPrefix}/config/bin/miniconda.sh
+                      Path: !Sub s3://${S3ConfigPrefix}/config/bootstrap/install_miniconda/run.sh
                       Args:
                           - !Ref MinicondaScriptURL
 
@@ -187,13 +187,14 @@ Resources:
             Applications:
                 - Name: Hadoop
                 - Name: Spark
-                - Name: Hive
                 - Name: Tez
                 - Name: Livy
                 - Name: Pig
                 - Name: Mahout
                 - Name: Hue
                 - Name: Ganglia
+                - Name: Presto
+                - Name: Hive
                 - Name: JupyterHub
 
             AutoScalingRole: !Ref AutoscalingRole
@@ -401,7 +402,7 @@ Resources:
                 Args:
                     - state-pusher-script
 
-    SpatialSetupStep:
+    InstallSpatialStep:
         Type: AWS::EMR::Step
         Properties:
             Name: InstallSpatial
@@ -410,11 +411,11 @@ Resources:
             HadoopJarStep:
                 Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
                 Args:
-                    - !Sub s3://${S3StepsPrefix}/config/bin/spatial.sh
-                    - !Ref S3StepsPrefix
+                    - !Sub s3://${S3ConfigPrefix}/config/step/install_spatial/run.sh
+                    - !Ref S3ConfigPrefix
 
     # Tell Spark to use miniconda rather than the system python
-    MinicondaSetupStep:
+    SetupMinicondaStep:
         Type: AWS::EMR::Step
         Properties:
             Name: SetupMiniconda
@@ -423,7 +424,7 @@ Resources:
             HadoopJarStep:
                 Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
                 Args:
-                    - !Sub s3://${S3StepsPrefix}/config/bin/miniconda_config.sh
+                    - !Sub s3://${S3ConfigPrefix}/config/step/setup_miniconda/run.sh
 
 Outputs:
     ClusterDNS:
