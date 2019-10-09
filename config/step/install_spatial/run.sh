@@ -1,8 +1,8 @@
 #!/bin/bash -xe
 
 # Download other files
-aws s3 cp "s3://$1/steps/jar/bing-tile-hive-1.0.jar" .
-aws s3 cp "s3://$1/steps/jar/sql/spatial.sql" .
+aws s3 cp "s3://$1/config/step/install_spatial/bing-tile-hive-1.0.jar" .
+aws s3 cp "s3://$1/config/step/install_spatial/spatial.sql" .
 
 # Install jars
 hadoop fs -rm -r -f hdfs:/spatial/
