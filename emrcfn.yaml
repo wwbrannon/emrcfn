@@ -161,9 +161,17 @@ Resources:
             VisibleToAllUsers: true
 
             BootstrapActions:
-                - Name: InstallSoftware
+                - Name: SystemSoftware
                   ScriptBootstrapAction:
-                      Path: !Sub s3://${S3StepsPrefix}/steps/software.sh
+                      Path: !Sub s3://${S3StepsPrefix}/steps/bin/system_software.sh
+
+                # Spark dependency management is awful, so we're going to
+                # install miniconda on the worker nodes to get known package
+                # versions etc. A step run after Spark installation tells it
+                # to use the miniconda python.
+                - Name: Miniconda
+                  ScriptBootstrapAction:
+                      Path: !Sub s3://${S3StepsPrefix}/steps/bin/miniconda.sh
 
             LogUri: !Sub
                 - "s3://${bucket}/emr-logs/"
@@ -172,16 +180,13 @@ Resources:
             Applications:
                 - Name: Hadoop
                 - Name: Spark
-
-                - Name: Ganglia
-
                 - Name: Hive
-                - Name: Pig
                 - Name: Tez
+                - Name: Livy
+                - Name: Pig
                 - Name: Mahout
-                # - Name: Presto
-
                 - Name: Hue
+                - Name: Ganglia
                 - Name: JupyterHub
 
             AutoScalingRole: !Ref AutoscalingRole
@@ -398,8 +403,20 @@ Resources:
             HadoopJarStep:
                 Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
                 Args:
-                    - !Sub s3://${S3StepsPrefix}/steps/spatial.sh
+                    - !Sub s3://${S3StepsPrefix}/steps/bin/spatial.sh
                     - !Ref S3StepsPrefix
+
+    # Tell Spark to use miniconda rather than the system python
+    MinicondaSetupStep:
+        Type: AWS::EMR::Step
+        Properties:
+            Name: SetupMiniconda
+            ActionOnFailure: CONTINUE
+            JobFlowId: !Ref Cluster
+            HadoopJarStep:
+                Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
+                Args:
+                    - !Sub s3://${S3StepsPrefix}/steps/bin/miniconda_config.sh
 
 Outputs:
     ClusterDNS:
