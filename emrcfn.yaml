@@ -426,6 +426,19 @@ Resources:
                 Args:
                     - !Sub s3://${S3ConfigPrefix}/config/step/setup_miniconda/run.sh
 
+    # Get EMR's Docker Jupyterhub configured to use the same conda environment
+    # we've deployed to the nodes and made Spark's default. This way, no
+    # confusing version mismatch errors.
+    SetupJupyterhubStep:
+        Type: AWS::EMR::Step
+        Properties:
+            Name: SetupJupyterhub
+            ActionOnFailure: CONTINUE
+            JobFlowId: !Ref Cluster
+            HadoopJarStep:
+                Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
+                Args:
+                    - !Sub s3://${S3ConfigPrefix}/config/step/setup_jupyterhub/run.sh
 Outputs:
     ClusterDNS:
         Description: EMR Cluster DNS
