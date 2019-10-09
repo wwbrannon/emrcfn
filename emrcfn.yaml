@@ -18,7 +18,7 @@ Parameters:
     ## Instance types
     MasterInstanceType:
         Type: String
-        Default: m4.large
+        Default: m4.xlarge
 
     CoreInstanceType:
         Type: String
