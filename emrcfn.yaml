@@ -168,7 +168,7 @@ Resources:
             BootstrapActions:
                 - Name: SystemSoftware
                   ScriptBootstrapAction:
-                      Path: !Sub s3://${S3StepsPrefix}/steps/bin/system_software.sh
+                      Path: !Sub s3://${S3StepsPrefix}/config/bin/system_software.sh
 
                 # Spark dependency management is awful, so we're going to
                 # install miniconda on the worker nodes to get known package
@@ -176,7 +176,7 @@ Resources:
                 # to use the miniconda python.
                 - Name: Miniconda
                   ScriptBootstrapAction:
-                      Path: !Sub s3://${S3StepsPrefix}/steps/bin/miniconda.sh
+                      Path: !Sub s3://${S3StepsPrefix}/config/bin/miniconda.sh
                       Args:
                           - !Ref MinicondaScriptURL
 
@@ -410,7 +410,7 @@ Resources:
             HadoopJarStep:
                 Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
                 Args:
-                    - !Sub s3://${S3StepsPrefix}/steps/bin/spatial.sh
+                    - !Sub s3://${S3StepsPrefix}/config/bin/spatial.sh
                     - !Ref S3StepsPrefix
 
     # Tell Spark to use miniconda rather than the system python
@@ -423,7 +423,7 @@ Resources:
             HadoopJarStep:
                 Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
                 Args:
-                    - !Sub s3://${S3StepsPrefix}/steps/bin/miniconda_config.sh
+                    - !Sub s3://${S3StepsPrefix}/config/bin/miniconda_config.sh
 
 Outputs:
     ClusterDNS:
