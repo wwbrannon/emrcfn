@@ -5,6 +5,7 @@ apt-get update && apt-get install -y build-essential git
 
 # Ensure we have the same environment installed on the nodes
 # NOTE: assumes file copied to /tmp by other script
-sudo -u jovyan env "PATH=$PATH" conda env update -n base --file /tmp/environment.yml
+conda env update -n base --file /tmp/environment.yml
+chown -R jovyan:users .cache .local # this can get messed up and block spawn
 rm /tmp/environment.yml
 
