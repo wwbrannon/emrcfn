@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: "Create an EMR cluster with optionally spot task instances"
 
 Parameters:
-    ## Account-specific
+    ## Need these to instantiate the template
     VpcId:
         Type: AWS::EC2::VPC::Id
 
@@ -18,15 +18,15 @@ Parameters:
     ## Instance types
     MasterInstanceType:
         Type: String
-        Default: m4.xlarge
+        Default: m5.xlarge
 
     CoreInstanceType:
         Type: String
-        Default: m4.xlarge
+        Default: m5.xlarge
 
     TaskInstanceType:
         Type: String
-        Default: m4.xlarge
+        Default: m5.xlarge
 
     ## Instance counts and bounds
     InitialCoreSize:
