@@ -69,7 +69,7 @@ Parameters:
 
     SpotPrice:
         Type: Number
-        Default: 0.1 # set to 0 for on-demand
+        Default: 0 # set to 0 for on-demand
 
     ReplicationFactor:
         Type: Number
@@ -170,16 +170,16 @@ Resources:
                   ScriptBootstrapAction:
                       Path: !Sub s3://${S3ConfigPrefix}/config/bootstrap/install_system_software/run.sh
 
-                # Spark dependency management is awful, so we're going to
-                # install miniconda on the worker nodes to get known package
-                # versions etc. A step run after Spark installation tells it
-                # to use the miniconda python.
-                - Name: InstallMiniconda
-                  ScriptBootstrapAction:
-                      Path: !Sub s3://${S3ConfigPrefix}/config/bootstrap/install_miniconda/run.sh
-                      Args:
-                          - !Ref S3ConfigPrefix
-                          - !Ref MinicondaScriptURL
+                # # Spark dependency management is awful, so we're going to
+                # # install miniconda on the worker nodes to get known package
+                # # versions etc. A step run after Spark installation tells it
+                # # to use the miniconda python.
+                # - Name: InstallMiniconda
+                #   ScriptBootstrapAction:
+                #       Path: !Sub s3://${S3ConfigPrefix}/config/bootstrap/install_miniconda/run.sh
+                #       Args:
+                #           - !Ref S3ConfigPrefix
+                #           - !Ref MinicondaScriptURL
 
             LogUri: !Sub
                 - "s3://${bucket}/emr-logs/"
@@ -403,45 +403,46 @@ Resources:
                 Args:
                     - state-pusher-script
 
-    InstallSpatialStep:
-        Type: AWS::EMR::Step
-        Properties:
-            Name: InstallSpatial
-            ActionOnFailure: CONTINUE
-            JobFlowId: !Ref Cluster
-            HadoopJarStep:
-                Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
-                Args:
-                    - !Sub s3://${S3ConfigPrefix}/config/step/install_spatial/run.sh
-                    - !Ref S3ConfigPrefix
+#    InstallSpatialStep:
+#        Type: AWS::EMR::Step
+#        Properties:
+#            Name: InstallSpatial
+#            ActionOnFailure: CONTINUE
+#            JobFlowId: !Ref Cluster
+#            HadoopJarStep:
+#                Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
+#                Args:
+#                    - !Sub s3://${S3ConfigPrefix}/config/step/install_spatial/run.sh
+#                    - !Ref S3ConfigPrefix
+#
+#    # Tell Spark to use miniconda rather than the system python
+#    SetupMinicondaStep:
+#        Type: AWS::EMR::Step
+#        Properties:
+#            Name: SetupMiniconda
+#            ActionOnFailure: CONTINUE
+#            JobFlowId: !Ref Cluster
+#            HadoopJarStep:
+#                Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
+#                Args:
+#                    - !Sub s3://${S3ConfigPrefix}/config/step/setup_miniconda/run.sh
+#                    - !Ref S3ConfigPrefix
+#
+#    # Get EMR's Docker Jupyterhub configured to use the same conda environment
+#    # we've deployed to the nodes and made Spark's default. This way, no
+#    # confusing version mismatch errors.
+#    SetupJupyterhubStep:
+#        Type: AWS::EMR::Step
+#        Properties:
+#            Name: SetupJupyterhub
+#            ActionOnFailure: CONTINUE
+#            JobFlowId: !Ref Cluster
+#            HadoopJarStep:
+#                Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
+#                Args:
+#                    - !Sub s3://${S3ConfigPrefix}/config/step/setup_jupyterhub/run.sh
+#                    - !Ref S3ConfigPrefix
 
-    # Tell Spark to use miniconda rather than the system python
-    SetupMinicondaStep:
-        Type: AWS::EMR::Step
-        Properties:
-            Name: SetupMiniconda
-            ActionOnFailure: CONTINUE
-            JobFlowId: !Ref Cluster
-            HadoopJarStep:
-                Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
-                Args:
-                    - !Sub s3://${S3ConfigPrefix}/config/step/setup_miniconda/run.sh
-                    - !Ref S3ConfigPrefix
-
-    # Get EMR's Docker Jupyterhub configured to use the same conda environment
-    # we've deployed to the nodes and made Spark's default. This way, no
-    # confusing version mismatch errors.
-    SetupJupyterhubStep:
-        Type: AWS::EMR::Step
-        Properties:
-            Name: SetupJupyterhub
-            ActionOnFailure: CONTINUE
-            JobFlowId: !Ref Cluster
-            HadoopJarStep:
-                Jar: !Sub s3://${AWS::Region}.elasticmapreduce/libs/script-runner/script-runner.jar
-                Args:
-                    - !Sub s3://${S3ConfigPrefix}/config/step/setup_jupyterhub/run.sh
-                    - !Ref S3ConfigPrefix
 Outputs:
     ClusterDNS:
         Description: EMR Cluster DNS

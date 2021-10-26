@@ -48,12 +48,12 @@ Deployment is as follows:
 
 An example AWS CLI command deploying the template is:
 ```
-aws cloudformation create-stack --stack-name emrcfn \
+aws --profile socmac cloudformation create-stack --stack-name emrcfn \
                                 --template-body "$(cat emrcfn.yaml)" \
                                 --capabilities CAPABILITY_NAMED_IAM \
-                                --parameters ParameterKey=VpcId,ParameterValue=vpc-XXXXXXXX \
-                                             ParameterKey=Subnet,ParameterValue=subnet-XXXXXXXX \
-                                             ParameterKey=KeyPair,ParameterValue=MyKeyPairName \
-                                             ParameterKey=S3ConfigPrefix,ParameterValue=mybucket/prefixname
+                                --parameters ParameterKey=VpcId,ParameterValue=vpc-4846d02d \
+                                             ParameterKey=Subnet,ParameterValue=subnet-9f2ad7b4 \
+                                             ParameterKey=KeyPair,ParameterValue=wwbrannon \
+                                             ParameterKey=S3ConfigPrefix,ParameterValue=utils.lsm
 ```
 
